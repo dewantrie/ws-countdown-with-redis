@@ -1,6 +1,5 @@
 package net.cluncur.auction;
 
-import io.vertx.redis.client.Redis;
 import io.vertx.redis.client.RedisAPI;
 import io.vertx.core.Vertx;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -14,7 +13,6 @@ import org.jboss.logging.Logger;
 public class CountdownTimerService {
     private static final Logger LOG = Logger.getLogger(CountdownTimerService.class);
 
-    @Inject Redis redis;
     @Inject Vertx vertx;
     @Inject EventBus eventBus;
     @Inject RedisAPI redisAPI;
@@ -25,7 +23,7 @@ public class CountdownTimerService {
                 .onFailure(throwable -> LOG.error("Failed to start timer: " + throwable.getMessage()));
     }
 
-    public void updateTimer(String groupId) {
+    private void updateTimer(String groupId) {
         redisAPI.decrby("timer:" + groupId, "1")
                 .onSuccess(response -> {
                     int timeRemaining = Integer.parseInt(response.toString());
