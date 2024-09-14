@@ -8,8 +8,7 @@ import jakarta.ws.rs.PathParam;
 @Path("/auction")
 public class AuctionResource {
 
-    @Inject
-    CountdownTimerService countdownTimerService;
+    @Inject CountdownTimerService countdownTimerService;
 
     @POST
     @Path("/{groupId}/bid")

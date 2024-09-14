@@ -21,8 +21,7 @@ public class AuctionWebSocket {
     private static final Logger LOG = Logger.getLogger(AuctionWebSocket.class);
     private Map<String, Session> sessions = new ConcurrentHashMap<>();
     
-    @Inject
-    EventBus eventBus;
+    @Inject EventBus eventBus;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("groupId") String groupId) {

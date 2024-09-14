@@ -14,25 +14,18 @@ import org.jboss.logging.Logger;
 public class CountdownTimerService {
     private static final Logger LOG = Logger.getLogger(CountdownTimerService.class);
 
-    @Inject
-    Redis redis;
-
-    @Inject
-    Vertx vertx;
-
-    @Inject
-    EventBus eventBus;
-
-    @Inject
-    RedisAPI redisAPI;
+    @Inject Redis redis;
+    @Inject Vertx vertx;
+    @Inject EventBus eventBus;
+    @Inject RedisAPI redisAPI;
 
     public void startCountdown(String groupId, int duration) {
         redisAPI.setex("timer:" + groupId, String.valueOf(duration), String.valueOf(duration))
-                .onSuccess(response -> updateTimer(groupId, duration))
+                .onSuccess(response -> updateTimer(groupId))
                 .onFailure(throwable -> LOG.error("Failed to start timer: " + throwable.getMessage()));
     }
 
-    public void updateTimer(String groupId, int duration) {
+    public void updateTimer(String groupId) {
         redisAPI.decrby("timer:" + groupId, "1")
                 .onSuccess(response -> {
                     int timeRemaining = Integer.parseInt(response.toString());
@@ -41,7 +34,7 @@ public class CountdownTimerService {
                     eventBus.publish("timer-updates", groupId + ":" + timeRemaining);
 
                     if (timeRemaining > 0) {
-                        vertx.setTimer(1000, id -> updateTimer(groupId, timeRemaining - 1)); // Schedule next decrement
+                        vertx.setTimer(1000, id -> updateTimer(groupId)); // Schedule next decrement
                     } else {
                         // Timer finished
                         List<String> keysToDelete = Arrays.asList("timer:" + groupId);
@@ -58,6 +51,6 @@ public class CountdownTimerService {
      * @param groupId
      */
     public void handleBid(String groupId) {
-        startCountdown(groupId, 10);
+        startCountdown(groupId, 100);
     }
 }
